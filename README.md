@@ -82,7 +82,7 @@ $ make
 ### パッケージ作成
 
 Gatewayにインストール可能なパッケージを作成します。
-以下のコマンドを実行すると、`firmware_<version>_<arch>.zip`というファイル名のzipファイルが作成されます。
+以下のコマンドを実行すると、`file_<version>_<arch>.zip`というファイル名のzipファイルが作成されます。
 
 ```
 $ make package
