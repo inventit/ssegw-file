@@ -33,7 +33,7 @@
 			"shared" : false,
 			"attributes" : {
 				"deliveryUrl" : {"type" : "string"},
-				"uploadUrl" : {"type" : "string"},
+				"uploadUrl" : {"type" : "string"}
 			},
 			"commands" : {
 				"downloadAndApply" : {"paramType" : null},
