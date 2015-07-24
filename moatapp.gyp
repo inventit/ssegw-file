@@ -3,10 +3,11 @@
     'config.gypi',
   ],
   'targets': [
-    # your M2M/IoT application
+    # File deliver and fetch application
     {
       'target_name': '<(package_name)',
       'sources': [
+        'src/file/file_content_info.c',
         'src/<(package_name).c',
        ],
       'product_prefix': '',
@@ -20,6 +21,5 @@
       'dependencies': [
       ],
     },
-
   ],
 }
