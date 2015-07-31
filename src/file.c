@@ -25,7 +25,7 @@
 
 #include <stdlib.h> // EXIT_SUCCESS
 #include <servicesync/moat.h>
-//#include <sseutils.h>
+#include <sseutils.h>
 #include <file/file.h>
 
 #define TAG "File"
@@ -63,8 +63,7 @@ moat_app_main(sse_int argc, sse_char *argv[])
     LOG_ERROR("moat_init() has been failed with [%d]", sse_get_error_string(err));
     goto err_exit;
   }
-
-  err = TFILEContentInfo_Initialize(&context, &moat);
+  err = TFILEContentInfo_Initialize(&context, moat);
   if (err != SSE_E_OK) {
     LOG_ERROR("TFILEContentInfo_Initialize() has been failed with [%s].", sse_get_error_string(err));
     goto err_exit;

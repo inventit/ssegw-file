@@ -24,14 +24,14 @@ SSE_BEGIN_C_DECLS
 struct TFILEContentInfo_ {
   Moat fMoat;
   MoatObject *fObject;
-  MoatObject *fFilesysInfo;
+  TFILEFilesysInfoTbl fFilesysInfo;
 };
 typedef struct TFILEContentInfo_ TFILEContentInfo;
 
 /**
- * @brief Constructor for TFILEContentInfo class
+ * @brief Constructor of TFILEContentInfo class
  *
- * Constructor for TFILEContentInfo class
+ * Constructor of TFILEContentInfo class
  *
  * @param [in] self          Instance
  * @param [in] in_moat       Moat Instance
@@ -44,9 +44,9 @@ TFILEContentInfo_Initialize(TFILEContentInfo *self,
                             Moat in_moat);
 
 /**
- * @brief Destructor for TFILEContentInfo class
+ * @brief Destructor of TFILEContentInfo class
  *
- * Destructor for TFILEContentInfo class
+ * Destructor of TFILEContentInfo class
  *
  * @param [in] self          Instance
  *
@@ -93,6 +93,17 @@ FILEContentInfo_UpdateFieldsProc(Moat in_moat,
                                  sse_char *in_uid,
                                  MoatObject *in_object,
                                  sse_pointer in_model_context);
+
+sse_int
+TFILEContentInfo_GetDownloadFilePath(TFILEContentInfo *self,
+                                     MoatValue **out_url,
+                                     MoatValue **out_file_path);
+
+sse_int
+TFILEContentInfo_GetUploadFilePath(TFILEContentInfo *self,
+                                   MoatValue **out_url,
+                                   MoatValue **out_file_path);
+
 
 /**
  * @brief Entry point of "download" command in "ContentInfo" model.

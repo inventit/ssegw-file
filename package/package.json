@@ -37,7 +37,7 @@
       "attributes" : {
 	"success" : {"type" : "boolean"},
 	"message" : {"type" : "string"},
-	"code" : {"type" : "int32"},
+	"code" : {"type" : "string"},
 	"uid" : {"type" : "string"}
 	
       }

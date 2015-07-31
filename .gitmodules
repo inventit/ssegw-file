@@ -1,0 +1,3 @@
+[submodule "ssegw-utils-moatc"]
+	path = ssegw-utils-moatc
+	url = https://satoshi_hasegawa@bitbucket.org/inventit/ssegw-utils-moatc.git

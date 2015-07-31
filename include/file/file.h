@@ -24,20 +24,26 @@ SSE_BEGIN_C_DECLS
 #define FILE_CONFIG_FILESYSTEM_PATH "filesystem.conf"
 
 #define FILE_MODELNAME_CONTENTINFO "ContentInfo"
+#define FILE_MODELNAME_FILERESULT  "FileResult"
 
 #define FILE_FILESYS_TYPE_RAMDISK "ramdisk"
 #define FILE_FILESYS_TYPE_NVRAM   "nvram"
 #define FILE_FILESYS_TYPE_RO      "ro"
 #define FILE_FILESYS_TYPE_RW      "rw"
 
-#define FILE_ERROR_INVAL   "Error.File.InvalidArgument"
-#define FILE_ERROR_NOMEM   "Error.File.OutOfMemory"
-#define FILE_ERROR_ACCESS  "Error.File.PermissionDenied"
-#define FILE_ERROR_NOENT   "Error.File.NoSuchFileOrDirectory"
-//TODO
-#define FILE_ERROR_RUMTIME "Error.File.Runtime"
+#define FILE_ERROR_OK       "Error.File.Success"
+#define FILE_ERROR_INVAL    "Error.File.IlligalArgument"
+#define FILE_ERROR_NOMEM    "Error.File.OutOfMemory"
+#define FILE_ERROR_ACCES    "Error.File.PermissionDenied"
+#define FILE_ERROR_NOENT    "Error.File.NoSuchFileOrDirectory"
+#define FILE_ERROR_CONF     "Error.File.IlligalConfiguration"
+#define FILE_ERROR_EXEC     "Error.File.ExecuteCommandFailure"
+#define FILE_ERROR_DOWNLOAD "Error.File.DownloadFailure"
+#define FILE_ERROR_RENAME   "Error.File.RenameFailure"
 
+#include <file/file_filesys_info.h>
 #include <file/file_content_info.h>
+#include <file/file_downloader.h>
 
 SSE_END_C_DECLS
 
