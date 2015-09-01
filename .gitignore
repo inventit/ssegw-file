@@ -14,3 +14,12 @@ certs/*.pem
 tools/*.pyc
 package/*.bin
 *.zip
+/test/*/.app-id
+/test/*/.moat_cmd_history
+/test/*/.moat_ds
+/test/*/apprunner
+/test/*/apprunner_cli
+/test/*/*.so
+/test/*/lib
+/test/*/package.json
+/test/*/release_info.txt
