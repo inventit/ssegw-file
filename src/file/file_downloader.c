@@ -606,10 +606,13 @@ TFILEDownloader_CallOnCompleteCallback(TFILEDownloader *self)
   MoatValue *err_msg;
 
   ASSERT(self);
-  LOG_INFO("Download file has been completed successfuly.");
   if (self->fOnCompleteCallback) {
     if (self->fResultCode == NULL) {
-      TFILEDownloader_StoreResultCode(self, FILE_ERROR_OK, "Download file has been complated successfuly.", sse_true);
+      LOG_INFO("Downloading file has been completed successfuly.");
+      TFILEDownloader_StoreResultCode(self, FILE_ERROR_OK, "Downloading file has been complated successfuly.", sse_true);
+    } else {
+      LOG_ERROR("Downloding file has been failed.");
+      MOAT_VALUE_DUMP_ERROR(TAG, self->fResultCode);
     }
     err_code = moat_object_get_value(self->fResultCode, "err_code");
     err_msg  = moat_object_get_value(self->fResultCode, "err_msg");
