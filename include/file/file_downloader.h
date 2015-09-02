@@ -23,7 +23,7 @@ SSE_BEGIN_C_DECLS
 
 /**
  * @struct TFILEDownloader_
- * @brief The downloader class in order to download the file from thw web storage.
+ * @brief The downloader class in order to download the file from the web storage.
  */  
 struct TFILEDownloader_ {
   sse_char *fUid;                          /** uid of download command requeet in ContentInfo model */
