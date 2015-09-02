@@ -26,6 +26,9 @@ SSE_BEGIN_C_DECLS
 #define FILE_MODELNAME_CONTENTINFO "ContentInfo"
 #define FILE_MODELNAME_FILERESULT  "FileResult"
 
+#define FILE_OPERATION_DELIVER_RESULT "deliver-file-result"
+#define FILE_OPERATION_FETCH_RESULT   "fetch-file-result"
+
 #define FILE_FILESYS_TYPE_RAMDISK "ramdisk"
 #define FILE_FILESYS_TYPE_NVRAM   "nvram"
 #define FILE_FILESYS_TYPE_RO      "ro"
@@ -40,10 +43,12 @@ SSE_BEGIN_C_DECLS
 #define FILE_ERROR_EXEC     "Error.File.ExecuteCommandFailure"
 #define FILE_ERROR_DOWNLOAD "Error.File.DownloadFailure"
 #define FILE_ERROR_RENAME   "Error.File.RenameFailure"
+#define FILE_ERROR_UPLOAD   "Error.File.UploadFailure"
 
 #include <file/file_filesys_info.h>
 #include <file/file_content_info.h>
 #include <file/file_downloader.h>
+#include <file/file_uploader.h>
 
 SSE_END_C_DECLS
 

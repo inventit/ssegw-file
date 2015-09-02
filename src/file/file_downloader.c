@@ -373,7 +373,7 @@ TFILEDownloader_DoPostAction(TFILEDownloader *self)
 
   postaction = TFILEFilesysInfo_GetPostAction(self->fFilesysInfo);
   if (postaction == NULL) {
-      LOG_DEBUG("No post-action. so download the file.");
+      LOG_DEBUG("No post-action. so downloading file has been completed.");
       TFILEDownloader_CallOnCompleteCallback(self);
       return;
   }

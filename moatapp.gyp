@@ -13,6 +13,7 @@
       'target_name': '<(package_name)',
       'sources': [
         '<@(sseutils_src)',
+        'src/file/file_uploader.c',
         'src/file/file_downloader.c',
         'src/file/file_filesys_info.c',
         'src/file/file_content_info.c',

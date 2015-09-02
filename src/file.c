@@ -83,6 +83,19 @@ moat_app_main(sse_int argc, sse_char *argv[])
     goto err_exit;
   }
 
+  mapper.AddProc = NULL;
+  mapper.RemoveProc = NULL;
+  mapper.UpdateProc = NULL;
+  mapper.UpdateFieldsProc = NULL;
+  mapper.FindAllUidsProc = NULL;
+  mapper.FindByUidProc = NULL;
+  mapper.CountProc = NULL;
+  err = moat_register_model(moat, FILE_MODELNAME_FILERESULT, &mapper, &context);
+  if (err != SSE_E_OK) {
+    LOG_ERROR("failed to register model.");
+    goto err_exit;
+  }
+
 
   /* main loop */
   moat_run(moat);

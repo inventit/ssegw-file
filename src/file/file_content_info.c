@@ -30,11 +30,11 @@
 #define ASSERT(cond) if(!(cond)) { LOG_ERROR("ASSERTION FAILED:" #cond); abort(); }
 
 static void
-FILEContentInfo_OnCompleteCallback(TFILEDownloader *downloader,
-                                   MoatValue *in_err_code,
+FILEContentInfo_OnCompleteCallback(MoatValue *in_err_code,
                                    MoatValue *in_err_msg,
                                    const sse_char *in_uid,
                                    const sse_char *in_key,
+                                   const sse_char *operation,
                                    sse_pointer in_user_data)
 {
   TFILEContentInfo *self = (TFILEContentInfo*)in_user_data;
@@ -49,9 +49,8 @@ FILEContentInfo_OnCompleteCallback(TFILEDownloader *downloader,
   ASSERT(self);
   ASSERT(in_err_code);
   ASSERT(in_err_msg);
-  ASSERT(downloader);
 
-  job_service_id = moat_create_notification_id_with_moat(self->fMoat, FILE_MODELNAME_FILERESULT, "1.0.0");
+  job_service_id = moat_create_notification_id_with_moat(self->fMoat, (sse_char*)operation, "1.0.0");
   ASSERT(job_service_id);
   LOG_DEBUG("URI=[%s]", job_service_id);
 
@@ -72,8 +71,10 @@ FILEContentInfo_OnCompleteCallback(TFILEDownloader *downloader,
   ASSERT(err == SSE_E_OK);
   err = moat_object_add_value(collection, "code", in_err_code, sse_true, sse_true);
   ASSERT(err == SSE_E_OK);
-  err = moat_object_add_string_value(collection, "uid", (sse_char*)in_uid, 0, sse_true, sse_true);
-  ASSERT(err == SSE_E_OK);
+  if (in_uid) {
+    err = moat_object_add_string_value(collection, "uid", (sse_char*)in_uid, 0, sse_true, sse_true);
+    ASSERT(err == SSE_E_OK);
+  }
 
   /* Send a notification. */
   request_id = moat_send_notification(self->fMoat,
@@ -91,8 +92,34 @@ FILEContentInfo_OnCompleteCallback(TFILEDownloader *downloader,
 
   moat_object_free(collection);
   sse_free(job_service_id);
-  TFILEDownloader_Delete(downloader);
+
   return;
+}
+
+static void
+FILEContentInfo_OnDownloadCompleteCallback(TFILEDownloader *downloader,
+                                           MoatValue *in_err_code,
+                                           MoatValue *in_err_msg,
+                                           const sse_char *in_uid,
+                                           const sse_char *in_key,
+                                           sse_pointer in_user_data)
+{
+  ASSERT(downloader);
+  FILEContentInfo_OnCompleteCallback(in_err_code, in_err_msg, in_uid, in_key, FILE_OPERATION_DELIVER_RESULT, in_user_data);
+  TFILEDownloader_Delete(downloader);
+}
+
+static void
+FILEContentInfo_OnUploadCompleteCallback(TFILEUploader *uploader,
+                                         MoatValue *in_err_code,
+                                         MoatValue *in_err_msg,
+                                         const sse_char *in_uid,
+                                         const sse_char *in_key,
+                                         sse_pointer in_user_data)
+{
+  ASSERT(uploader);
+  FILEContentInfo_OnCompleteCallback(in_err_code, in_err_msg, in_uid, in_key, FILE_OPERATION_FETCH_RESULT, in_user_data);
+  TFILEUploader_Delete(uploader);
 }
 
 sse_int
@@ -248,11 +275,40 @@ TFILEContentInfo_GetDownloadFilePath(TFILEContentInfo *self,
 }
 
 sse_int
-TFILEContentInfo_GetUploadFilePath(TFILEContentInfo *self,
-                                   MoatValue **out_url,
-                                   MoatValue **out_file_path)
+TFILEContentInfo_GetUploadUrl(TFILEContentInfo *self,
+                              MoatValue **out_file_path,
+                              MoatValue **out_url)
 {
-  //TODO
+  MoatValue *url;
+  MoatValue *path;
+
+  LOG_DEBUG("Enter: self=[%p]", self);
+  ASSERT(self);
+  ASSERT(out_url);
+  ASSERT(out_file_path);
+
+  if (self->fObject == NULL) {
+    LOG_ERROR("self->fObject=[%p]", self->fObject);
+    return SSE_E_INVAL;
+  }
+
+  path = moat_object_get_value(self->fObject, "sourcePath");
+  if (path == NULL) {
+    LOG_ERROR("No source file path information.");
+    MOAT_OBJECT_DUMP_ERROR(TAG, self->fObject);
+    return SSE_E_GENERIC;
+  }
+  url  = moat_object_get_value(self->fObject, "uploadUrl");
+  if (url == NULL) {
+    LOG_ERROR("No URL information.");
+    MOAT_OBJECT_DUMP_ERROR(TAG, self->fObject);
+    return SSE_E_GENERIC;
+  }
+
+  *out_url = moat_value_clone(url);
+  ASSERT(*out_url);
+  *out_file_path = moat_value_clone(path);
+  ASSERT(*out_file_path);
   return SSE_E_OK;
 }
 
@@ -276,7 +332,7 @@ ContentInfo_download(Moat in_moat,
 
   downloader = FILEDownloader_New(in_uid, in_key);
   ASSERT(downloader);
-  TFILEDownloader_SetOnCompleteCallback(downloader, FILEContentInfo_OnCompleteCallback, self);
+  TFILEDownloader_SetOnCompleteCallback(downloader, FILEContentInfo_OnDownloadCompleteCallback, self);
 
   /* Get the source URL and distination local file path. */
   err = TFILEContentInfo_GetDownloadFilePath(self, &url, &file_path);
@@ -333,12 +389,39 @@ ContentInfo_upload(Moat in_moat,
                    sse_pointer in_model_context)
 {
   sse_int err;
+  TFILEUploader *uploader;
+  MoatValue *src_file_path;
+  MoatValue *dst_url;
+  TFILEContentInfo *self = (TFILEContentInfo*)in_model_context;
 
-  LOG_DEBUG("Enter: moat=[%p], uid=[%s], key=[%s], data=[%p], context=[%p]", in_moat, in_uid, in_key, in_data, in_model_context);
   ASSERT(in_moat);
   ASSERT(in_model_context);
+  LOG_DEBUG("Enter: moat=[%p], uid=[%s], key=[%s], data=[%p], context=[%p]", in_moat, in_uid, in_key, in_data, in_model_context);
 
-  err = moat_start_async_command(in_moat, in_uid, in_key, in_data, FILEContent_UploadFileAsync, in_model_context);
+  uploader = FILEUploader_New(in_uid, in_key);
+  ASSERT(uploader);
+  TFILEUploader_SetOnCompleteCallback(uploader, FILEContentInfo_OnUploadCompleteCallback, self);
+
+  /* Get the source file path and distination URL. */
+  err = TFILEContentInfo_GetUploadUrl(self, &src_file_path, &dst_url);
+  if (err != SSE_E_OK) {
+    LOG_ERROR("TFILEContentInfo_GetUploadUrl() has been failed with [%s].", sse_get_error_string(err));
+    return err;
+  }
+  LOG_DEBUG("Source file path=...");
+  MOAT_VALUE_DUMP_DEBUG(TAG, src_file_path);
+  LOG_DEBUG("Destination URL=...");
+  MOAT_VALUE_DUMP_DEBUG(TAG, dst_url);
+
+  err = TFILEUploader_SetResourcePath(uploader, src_file_path, dst_url);
+  moat_value_free(src_file_path);
+  moat_value_free(dst_url);
+  if (err != SSE_E_OK) {
+    LOG_ERROR("TFILEUploader_SetResourcePath() has been failed with [%s].", sse_get_error_string(err));
+    return err;
+  }
+
+  err = moat_start_async_command(in_moat, in_uid, in_key, in_data, FILEContent_UploadFileAsync, uploader);
   if (err != SSE_E_OK) {
     LOG_ERROR("moat_start_async_command() ... failed with [%s].", sse_get_error_string(err));
     return err;
@@ -353,8 +436,14 @@ FILEContent_UploadFileAsync(Moat in_moat,
                             MoatValue *in_data,
                             sse_pointer in_model_context)
 {
+  TFILEUploader *uploader = (TFILEUploader *)in_model_context;
+
+  ASSERT(in_moat);
+  ASSERT(in_model_context);
   LOG_DEBUG("Enter: moat=[%p], uid=[%s], key=[%s], data=[%p], context=[%p]", in_moat, in_uid, in_key, in_data, in_model_context);
-  //TODO
+
+  TFILEUploader_UploadFile(uploader);
+
   return SSE_E_OK;
 }
 
