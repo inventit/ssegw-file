@@ -342,13 +342,13 @@ TFILEDownloader_DoCopy(TFILEDownloader *self)
     MOAT_VALUE_DUMP_ERROR(TAG, self->fTmpFilePath);
     MOAT_VALUE_DUMP_ERROR(TAG, self->fFilePath);
     if (err == SSE_E_ACCES) {
-      TFILEDownloader_StoreResultCode(self, FILE_ERROR_ACCES, "Rename file has been faield.", sse_false);
+      TFILEDownloader_StoreResultCode(self, FILE_ERROR_ACCES, "Rename file has been failed.", sse_false);
     } else if (err == SSE_E_NOMEM) {
-      TFILEDownloader_StoreResultCode(self, FILE_ERROR_NOMEM, "Rename file has been faield.", sse_false);
+      TFILEDownloader_StoreResultCode(self, FILE_ERROR_NOMEM, "Rename file has been failed.", sse_false);
     } else if (err == SSE_E_NOENT) {
-      TFILEDownloader_StoreResultCode(self, FILE_ERROR_NOENT, "Rename file has been faield.", sse_false);
+      TFILEDownloader_StoreResultCode(self, FILE_ERROR_NOENT, "Rename file has been failed.", sse_false);
     } else {
-      TFILEDownloader_StoreResultCode(self, FILE_ERROR_RENAME, "Rename file has been faield.", sse_false);
+      TFILEDownloader_StoreResultCode(self, FILE_ERROR_RENAME, "Rename file has been failed.", sse_false);
     }
   }
   TFILEDownloader_DoPostAction(self);
