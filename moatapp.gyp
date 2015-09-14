@@ -1,11 +1,11 @@
 {
   'variables': {
-    'sseutils_root': './ssegw-utils-moatc',
+    'sseutils_root': './moat-c-utils',
   },
   'includes': [
     'common.gypi',
     'config.gypi',
-    './ssegw-utils-moatc/sseutils.gypi',
+    './moat-c-utils/sseutils.gypi',
   ],
   'targets': [
     # File deliver and fetch application
