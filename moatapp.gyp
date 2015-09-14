@@ -26,7 +26,6 @@
         '<(sseutils_include)',
       ],
       'libraries': [
-        '-lmoatapp',
       ],
       'dependencies': [
       ],

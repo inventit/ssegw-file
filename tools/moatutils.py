@@ -257,8 +257,8 @@ class package:
       f.close()
     return True
 
-  def archive(self, path, arch):
-    pkg_path = os.path.join(self.deploy_to, self.package_name + '_' + self.version + '_' + arch + '.zip')
+  def archive(self, path, arch, product='generic'):
+    pkg_path = os.path.join(self.deploy_to, self.package_name + '_' + self.version + '_' + arch + '_' + product + '.zip')
     print 'archinving to %s' %(pkg_path)
     cwd = os.getcwd()
     os.chdir(path)

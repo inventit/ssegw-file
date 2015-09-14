@@ -13,6 +13,8 @@ certs/*.p12
 certs/*.pem
 tools/*.pyc
 package/*.bin
+package/filesystem.conf
+package/flatfs_save.sh
 *.zip
 /test/*/.app-id
 /test/*/.moat_cmd_history
