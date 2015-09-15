@@ -1,0 +1,7 @@
+{
+  "deliveryUrl": "https://s3.servicesync.net:443/egypt01/moat/a6e8135a-1f18-42ff-b793-0b8a32e47354/file/%40res/content/16659147373787060/object?AWSAccessKeyId=5A-8C34ZK8V2RK3MIPUT&Expires=1437124184&Signature=ZnNSs6luEPptM8KUAG8yw75BE%2B8%3D",
+  "uploadUrl": "dummy",
+  "name": "test.png",
+  "destinationPath": "/tmp/test.png",
+  "sourcePath": "dummy"
+}

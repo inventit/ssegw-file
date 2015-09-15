@@ -24,7 +24,7 @@
     ],
     'conditions': [
       [ 'OS=="linux"', {
-        'cflags': [ '-Wall', ],
+        'cflags': [ '-Wall', '-Werror' ],
         'ldflags': [ '-rdynamic' ],
         'conditions': [
           [ 'target_arch=="i386"', {
