@@ -13,4 +13,15 @@ certs/*.p12
 certs/*.pem
 tools/*.pyc
 package/*.bin
+package/filesystem.conf
+package/flatfs_save.sh
 *.zip
+/test/*/.app-id
+/test/*/.moat_cmd_history
+/test/*/.moat_ds
+/test/*/apprunner
+/test/*/apprunner_cli
+/test/*/*.so
+/test/*/lib
+/test/*/package.json
+/test/*/release_info.txt

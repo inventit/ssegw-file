@@ -4,12 +4,15 @@ import os
 import pprint
 import subprocess
 import sys
+import shutil
 import tools.moatutils as moatutils
 
 CC = os.environ.get('CC', 'cc')
 
 moat_root = os.path.abspath(os.path.dirname(__file__))
 sys.path.insert(0, os.path.join(moat_root, 'tools'))
+
+supported_products = ['generic', 'Armadillo-IoT', 'OpenBlocks-IoT', 'RaspberryPi' ]
 
 # parse our options
 parser = optparse.OptionParser()
@@ -23,6 +26,11 @@ parser.add_option("--dest-cpu",
     action="store",
     dest="dest_cpu",
     help="CPU architecture to build for. Valid values are: arm, ia32, x64")
+
+parser.add_option("--product",
+    action="store",
+    dest="target_product",
+    help="Procuct to build for. Valid values are: " + ", ".join(supported_products))
 
 #parser.add_option("--dest-os",
 #    action="store",
@@ -217,6 +225,21 @@ def configure_moat(o):
   generate_package_json(moat_path, package_name, version)
   generate_skeleton(moat_path, package_name)
 
+def generate_config(product):
+  if (product == 'Armadillo-IoT'):
+    src = os.path.join(moat_root, 'ports/Armadillo-IoT/conf/filesystem.conf')
+  else:
+    src = os.path.join('ports/ri/conf/filesystem.conf')
+  dst = os.path.join(moat_root, 'package/filesystem.conf')
+  print 'creating', dst
+  shutil.copyfile(src, dst)
+
+  if (product == 'Armadillo-IoT'):
+    src = os.path.join(moat_root, 'ports/Armadillo-IoT/script/flatfs_save.sh')
+    dst = os.path.join(moat_root, 'package/flatfs_save.sh')
+    print 'creating', dst
+    shutil.copy2(src, dst)
+
 def configure_app(o):
 
   configure_moat(o)
@@ -240,6 +263,9 @@ def configure_app(o):
   moat_lib_dir = os.path.join(moat_root, 'test', target_arch, 'lib')
   o['library_dirs'] = [ moat_lib_dir ]
   o[ 'ldflags' ] = [ '-L' + moat_lib_dir ]
+
+  o['variables']['target_product'] = options.target_product if options.target_product in supported_products else 'generic'
+  generate_config(o['variables']['target_product'])
 
 output = {
   'variables': {},

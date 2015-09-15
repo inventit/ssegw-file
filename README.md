@@ -1,95 +1,271 @@
-ServiceSync Embedded File App
+File
 ===
 
-このアプリケーションは、ServiceSync Embedded Gatewayで動作する、ファイル取得・配信のアプリケーションです。
+This application, which works on ServiceSync delivers a file to the gateway device and fetches  a file from the gateway device.
 
-## ディレクトリ構成
+This application has the following components:
+* __Server Package:__ https://github.com/inventit/ssjs-file
+* __Gateway Package:__ https://github.com/inventit/ssegw-file
 
+# System Requirements
+
+If you want to run this application on your ServiceSync, here's what it takes:
+* __ServiceSync Server:__ `v2.2.3` or later
+* __ServiceSync Cline:__ `v1.1.0` or later
+
+Supported gateway devices are as follows:
+
+* __Generic Intel-based PCs:__ Debian `7.x` (Wheezy)
+* __Amradillo-IoT / G2:__  Kernel `v3.14-at3` + AtmarkDist `v20150826` or later
+* __OpenBlocks:__ Firmware `1.0.4` or later
+* __Raspberry Pi:__ Raspbian `May 2015`
+
+# Setup
+
+To deliver/fetch a file using this application, you need to build the Server Package and the Gateway Package. Then deploy the Server Package to ServiceSync and install the Gateway Package to each gateway device via ServiceSync.
+
+## Server Package
+
+### Preparing Development Environment
+
+To develop a Server Package, `Node.js`, `Grunt` and `Java`(1.6 or later) are required. If these tools even work, you are able to use any Operating System what you like.
+
+In case of using Mac or Linux, you can install `Node.js` with [nodebrew](https://github.com/hokaccha/nodebrew).
+The blow is a sample to install Node.js `v0.12.5`.
 ```
-${APP_ROOT}
-├── Makefile
-├── README.md
-├── certs .................... (1)
-├── common.gypi
-├── configure
-├── include
-│   └── servicesync .......... (2)
-├── moatapp.gyp
-├── package
-│   └── package.json
-├── src ...................... (3)
-├── test
-└── tools
-```
-
-## ビルド手順
-
-### 事前準備
-
-* プラットフォーム証明書`moat.pem`を、`certs`ディレクトリに予め配置しておく必要があります。
-  * プラットフォーム証明書は、動作環境(DMS等)に合わせて異なりますので、都度、環境に合わせて配置しなおしてください。
-* [iidn-cli](https://github.com/inventit/iidn-cli)をインストールする必要があります。
-  * インストール後、`iidn`コマンドに実行パスを通しておいてください。
-* アプリケーションをビルドするためには、API認証情報(appId/clientId/password)が必要です。予め、ServiceSyncのアカウントを取得してください。
-
-### `token.bin`の生成
-
-```
-$ cd ${APP_ROOT}/package
-$ $ iidn tokengen file
-[IIDN] ** Using node... **
-[IIDN] Enter your appId:
-704dc8aa-xxxx-xxxx-xxxx-xxxxxxxxx
-[IIDN] Enter your clientId:
-admin@xxxxxxxxxxxxxxxxxxxxxxxxxxx
-[IIDN] Enter your password:
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
- ... (snip) ...
-
-[IIDN] Done
+$ nodebrew install-binary v0.12.5
+$ nodebrew use v0.12.5
+$ node -v
+v0.12.5
 ```
 
-`iidn tokengen`を実行すると、実行したディレクトリに`1427021905250-token.bin`のようなファイル名で、トークンが生成されます。
-このファイル名を、`token.bin`に変更してください。
-
+[Grunt](http://gruntjs.com/) is required to build the Server Package. Install Grunt as follows.
 ```
-.
-├── Makefile
-├── README.md
-├── certs
-│   └── moat.pem ....... (*)
-├── common.gypi
-├── configure
-├── include
-├── moatapp.gyp
-├── package
-│   ├── package.json
-│   └── token.bin ...... (*)
-├── src
-├── test
-└── tools
+$ npm install -g grunt-cli
+```
+Java Runtime is required by Grunt task. Install Java Runtime.
+
+Linux:
+```
+$ sudo apt-get install openjdk-7-jre
 ```
 
-### ビルド
+Mac or Windows:
+* Refer to https://www.java.com/en/download/help/download_options.xml
 
+### Build
+
+Get the source code from GitHub.
 ```
-$ cd ${APP_ROOT}
-$ ./configure
-$ make
-```
-
-### パッケージ作成
-
-Gatewayにインストール可能なパッケージを作成します。
-以下のコマンドを実行すると、`file_<version>_<arch>.zip`というファイル名のzipファイルが作成されます。
-
-```
-$ make package
+$ git clone https://github.com/inventit/ssjs-file.git
+$ cd ssjs-file
 ```
 
-## 変更履歴
+Execute the following commands to build the Server Package. The Server Package named `file-${VERSION}.zip` will be generated.
+```
+$ npm install
+$ grunt pack
+```
 
-Changes in `0.0.1` : 2015/04/01
+If you want to clean artifacts, execute the following command.
+```
+$ grunt clean
+```
 
-* Initial Release.
+### Deploy
+
+1. Login to ServiceSync Web Console with PP's (Platform Provicer) account.
+2. Select [Packages] from the side menu.
+3. Open [Server Packages] tab.
+4. Click [Add] Button. Pop-up window will appear.
+5. Select the Server Package and click [submit] button.
+6. Push [Deploy] button in [Detail Info].
+
+## Gateway Package
+
+### Preparing Development Environment
+
+To build a Gateway Packages, Setup Linux environment. The below are required Linux distribution for each product.
+
+* __Intel 64 based PCs:__ Debian 7.x (64-bit)
+* __Intel IA-32 based PCs:__ Debian 7.x (32-bit)
+* __Armadillo-IoT /G2:__ [ATDE5](http://armadillo.atmark-techno.com/armadillo-iot/downloads)
+* __OpenBlocks IoT:__ Debian 7.x (32-bit) (or Self-Development)
+* __Raspberry Pi:__ [Raspbian](https://www.raspberrypi.org/downloads/raspbian/) (Self-Development)
+
+Install additional packages to develop a Gateway Package as follows.
+```
+$ sudo apt-get update
+$ sudo apt-get install -y --force-yes \
+	git \
+	mercurial \
+	build-essential \
+	gyp \
+	zip \
+	libssl-dev \
+	libz-dev \
+	libxml2-dev \
+	libev-dev \
+	uuid \
+	uuid-dev \
+	gcc-multilib \
+	libreadline-dev \
+	libudev-dev \
+	openjdk-7-jdk
+```
+
+In case of using Armadillo-IoT, install the additional packages for cross compile.
+```
+atde5$ curl -O http://ftp.jp.debian.org/debian/pool/main/libe/libev/libev4_4.11-1_armel.deb
+atde5$ curl -O http://ftp.jp.debian.org/debian/pool/main/libe/libev/libev-dev_4.11-1_armel.deb
+atde5$ sudo dpkg-cross --build  --arch armel libev4_4.11-1_armel.deb
+atde5$ sudo dpkg-cross --build  --arch armel libev-dev_4.11-1_armel.deb
+atde5$ sudo dpkg -i libev4-armel-cross_4.11-1_all.deb libev-dev-armel-cross_4.11-1_all.deb
+```
+
+### Build
+
+#### Getting source code
+
+Get the source code from GitHub.
+```
+$ git clone https://github.com/inventit/ssegw-file.git
+$ cd ssegw-file
+$ git checkout <branch name> # if necessary
+$ git submodule init
+$ git submodule update
+```
+
+#### Getting Platform Certificate (moat.pem)
+
+To sign the Gateway Package, the platform certicate (moat.pem) is required. ServiceSync Server (DMS) has their own certificate, so get it from your SA (System Administrator) in advance.
+
+Copy `moat.pem` into `ssegw-file/certs`.
+```
+$ cp /path/to/moat.pem ./certs
+```
+
+####  Getting token.bin
+
+Generate the token for signing as follows.
+```
+$ cd package
+$ export SSDMS_PREFIX="YOUR SERVICESYNC DMS URL"
+$ export APP_ID="YOUR PP's APPLICATION ID"
+$ export CLIENT_ID="YOUR PP's CLIENT ID"
+$ export CLIENT_SECRET="YOUR PP's PASSWORD"
+$ export PACKAGE_ID="file"
+$ export TOKEN=`curl -v "${SSDMS_PREFIX}/moat/v1/sys/auth?a=${APP_ID}&u=${CLIENT_ID}&c=${CLIENT_SECRET}" | sed 's/\\\\\//\//g' | sed 's/[{}]//g' | awk -v k="text" '{n=split($0,a,","); for (i=1; i<=n; i++) print a[i]}' | sed 's/\"\:\"/\|/g' | sed 's/[\,]/ /g' | sed 's/\"//g' | grep -w 'accessToken' | cut -d"|" -f2 | sed -e 's/^ *//g' -e 's/ *$//g'`
+$ curl -v -o token.bin -L "${SSDMS_PREFIX}/moat/v1/sys/package/${PACKAGE_ID}?token=${TOKEN}&secureToken=true"
+$ cd ..
+```
+
+#### Packaging
+
+Build a Gateway package as follows. You will be able to get the Gateway Package named  `file_${VERSION}_${ARCH}_${PRODUCT}.zip`.
+
+__Generic Intel-based PCs:__
+```
+debian$ ./configure
+debian$ make package
+```
+
+__Armadillo-IoT:__
+```
+atde5$ export CROSS=arm-linux-gnueabi-
+atde5$ export CC=${CROSS}gcc
+atde5$ export CXX=${CROSS}g++
+atde5$ export AR=${CROSS}ar
+atde5$ export LD=${CROSS}ld
+atde5$ export RANLIB=${CROSS}ranlib
+atde5$ export STRIP=${CROSS}strip
+atde5$ ./configure --dest-cpu=arm --product=Armadillo-IoT
+atde5$ make package
+```
+
+__OpenBlocks IoT:__
+```
+debian$ ./configure --dest-cpu=ia32 --product=OpenBlocks-IoT
+debian$ make package
+```
+
+__Raspberry Pi:__
+```
+pi$ ./configure --dest-cpu=arm --product=RaspberryPi
+pi$ make package
+```
+
+### Deploy
+
+1. Login to ServiceSync Web Console with PP's (Platform Provicer) account.
+2. Select [Packages] from the side menu.
+3. Open [Gateway Packages] tab.
+4. Click [Add] Button. Pop-up window will appear.
+5. Select the server package and push [submit] button.
+6. Click [Deploy] button in [Detail Info].
+
+### Install
+
+1. Login to ServiceSync Web Console with PU's (Platform User) account.
+2. Select [Packages] from the side menu.
+3. Open [Gateway Packages] tab.
+5. Select the Gateway Package and click [Install] button in [Detail Info].
+6. Select the devices and click [Install] button. Pop-up window will appear.
+7. Click [OK] to start installation.
+
+# Usage
+
+## Fetching a file
+
+1. Login to ServiceSync Web Console with PU's (Platform User) account.
+2. Select [Devices] from the side menu.
+3. Select the device which you want to fetch a file from [Device List]
+4. Click Pull-down menu [Action] in [Basic Info], then select [Fetch Generic File].
+5. Pop-up window will appear. Input the file path in the device.
+6. Click [OK] to start fetching.
+
+## Delivering a file
+
+1. Login to ServiceSync Web Console with PU's (Platform User) account.
+2. Select [File] from the side menu.
+3. Select the file which you want to deliver in [File List].
+4. Click [Deliver] in [Detail Info].
+5. Select the devices in [Select Devices] and click [Deliver] button.
+6. Pop-up window will appear. Input the file path in the device.
+6. Click [OK] to start delivering.
+
+## Limitation
+
+* Max file size depends on ServiceSync Server configuration and the actual storage size in the gateway device.
+
+# Known Bugs
+
+* `#13922:` The gateway does not return ERROR when delivering a file failed caused by disk full.
+
+# Change History
+
+## Server Package
+
+### `2.0.0` September 16, 2015
+
+* ServiceSync 2.x support
+* Armadillo-IoT support
+* OpenBlocks IoT support
+* Raspberry Pi support
+
+### `1.0.0` April 9, 2015
+
+* Initial Release
+
+## Gateway Package
+
+### `2.0.0` September 16, 2015
+
+* ServiceSync 2.x support
+* Armadillo-IoT support
+* OpenBlocks IoT support
+* Raspberry Pi support
+
+### `0.0.1` April 1, 2015
+
+* Initial Release

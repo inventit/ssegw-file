@@ -1,66 +1,46 @@
 {
-	"name": "file",
-	"version": "0.0.1",
-	"description": "Suncorp Rooster GX View Devic Information",
-	"maintainers": [
-		{
-			"name": "Tokyo Engineering Team",
-			"email": "asparagus@yourinventit.com"
-		}
-	],
-	"bugs": {
-		"mail": "iidn-sys-notice@yourinventit.com"
-	},
-	"main" : "file.so",
-	"models" : {
-		"ContentInfo" : {
-			"array" : false,
-			"shared" : false,
-			"attributes" : {
-				"deliveryUrl" : {"type" : "string"},
-				"uploadUrl" : {"type" : "string"},
-				"name" : {"type" : "string"},
-				"destinationPath" : {"type" : "string"},
-				"sourcePath" : {"type" : "string"}
-			},
-			"commands" : {
-				"download" : {"paramType" : null},
-				"upload" : {"paramType" : null}
-			}
-		},
-		"ConfigurationInfo" : {
-			"array" : false,
-			"shared" : false,
-			"attributes" : {
-				"deliveryUrl" : {"type" : "string"},
-				"uploadUrl" : {"type" : "string"}
-			},
-			"commands" : {
-				"downloadAndApply" : {"paramType" : null},
-				"uploadConfig" : {"paramType" : null}
-			}
-		},
-		"SyslogInfo" : {
-			"array" : false,
-			"shared" : false,
-			"attributes" : {
-				"uploadUrl" : {"type" : "string"},
-				"maxLogs" : {"type" : "int32"}
-			},
-			"commands" : {
-				"upload" : {"paramType" : null}
-			}
-		},
-		"FileResult" : {
-			"array" : false,
-			"shared" : false,
-			"attributes" : {
-				"success" : {"type" : "boolean"},
-				"message" : {"type" : "string"},
-				"code" : {"type" : "int32"},
-				"uid" : {"type" : "string"}
-				
-			}
-		}
-	}
+  "name": "file",
+  "version": "2.0.0",
+  "description": "Deliver and fetch a file",
+  "maintainers": [
+    {
+      "name": "Inventit Inc.",
+      "email": "egypt@yourinventit.com"
+    }
+  ],
+  "bugs": {
+    "mail": "egypt@yourinventit.com"
+  },
+  "dependencies": {
+    "moat": ">=1.0.0 <2.0.0"
+  },
+  "main" : "file.so",
+  "models" : {
+    "ContentInfo" : {
+      "array" : false,
+      "scope" : "device",
+      "attributes" : {
+	"deliveryUrl" : {"type" : "string"},
+	"uploadUrl" : {"type" : "string"},
+	"name" : {"type" : "string"},
+	"destinationPath" : {"type" : "string"},
+	"sourcePath" : {"type" : "string"}
+      },
+      "commands" : {
+	"download" : {"paramType" : null},
+	"upload" : {"paramType" : null}
+      }
+    },
+    "FileResult" : {
+      "array" : false,
+      "scope" : "device",
+      "attributes" : {
+	"success" : {"type" : "boolean"},
+	"message" : {"type" : "string"},
+	"code" : {"type" : "string"},
+	"uid" : {"type" : "string"}
+	
+      }
+    }
+  }
 }
