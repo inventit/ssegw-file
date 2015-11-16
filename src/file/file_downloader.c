@@ -227,9 +227,12 @@ TFILEDownloader_DoDownload(TFILEDownloader *self)
       path = sse_string_new_with_length(str, len);
       ASSERT(path);
     } else {
-      LOG_WARN("Does not able to access to the download directory, so use /tmp.");
-      path = sse_string_new("/tmp");
-      ASSERT(path);      
+      err = SseUtilFile_MakeDirectory(dl_dir);
+      if (err != SSE_E_OK) {
+        LOG_WARN("Does not able to access to the download directory, so use /tmp.");
+        path = sse_string_new("/tmp");
+        ASSERT(path);
+      }
     }
   } else {
     LOG_WARN("moat_value_get_string() has been failed with [%s], so use /tmp", sse_get_error_string(err));
