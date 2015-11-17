@@ -221,25 +221,36 @@ TFILEDownloader_DoDownload(TFILEDownloader *self)
       ASSERT(dl_dir);
     }
   }
-  err = moat_value_get_string(dl_dir, &str, &len);
-  if (err == SSE_E_OK) {
-    if (SseUtilFile_IsDirectory(dl_dir)) {
+
+  /* Create a download dir if any. */
+  if (SseUtilFile_IsDirectory(dl_dir)) {
+    err = moat_value_get_string(dl_dir, &str, &len);
+    if (err == SSE_E_OK) {
       path = sse_string_new_with_length(str, len);
       ASSERT(path);
     } else {
-      err = SseUtilFile_MakeDirectory(dl_dir);
-      if (err != SSE_E_OK) {
-        LOG_WARN("Does not able to access to the download directory, so use /tmp.");
+      LOG_ERROR("moat_value_get_string() has been failed with [%s].", sse_get_error_string(err));
+      path = sse_string_new("/tmp");
+      ASSERT(path);
+    }
+  } else {
+    err = SseUtilFile_MakeDirectory(dl_dir);
+    if (err == SSE_E_OK) {
+      err = moat_value_get_string(dl_dir, &str, &len);
+      if (err == SSE_E_OK) {
+        path = sse_string_new_with_length(str, len);
+        ASSERT(path);
+      } else {
+        LOG_ERROR("moat_value_get_string() has been failed with [%s].", sse_get_error_string(err));
         path = sse_string_new("/tmp");
         ASSERT(path);
       }
+    } else {
+      LOG_ERROR("SseUtilFile_MakeDirectory() has been failed with [%s].", sse_get_error_string(err));
+      path = sse_string_new("/tmp");
+      ASSERT(path);
     }
-  } else {
-    LOG_WARN("moat_value_get_string() has been failed with [%s], so use /tmp", sse_get_error_string(err));
-    path = sse_string_new("/tmp");
-    ASSERT(path);
   }
-  LOG_DEBUG("Download dir = [%s].", path);
 
   /* Create a tentative destination file path, ${DOWNLOAD_DIR}/${ORIGIN_FILENAME}.part.*/
   err = SseUtilFile_GetFileName(self->fFilePath, &basename);
