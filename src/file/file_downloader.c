@@ -214,22 +214,39 @@ TFILEDownloader_DoDownload(TFILEDownloader *self)
   /* Get the directory path for download, then tests an accessability to store temporary file. */
   dl_dir = TFILEFilesysInfo_GetTmpDir(self->fFilesysInfo);
   if (dl_dir == NULL) {
-    LOG_INFO("Directory for download does not specified, so use /tmp.");
-    path = sse_string_new("/tmp");
-    ASSERT(path);
-  } else {
+    err = SseUtilFile_GetDirectoryPath(self->fFilePath, &dl_dir);
+    if (err != SSE_E_OK) {
+      LOG_ERROR("SseUtilFile_GetDirectoryPath() has been failed with [%s].", sse_get_error_string(err));
+      dl_dir = moat_value_new_string("/tmp", 0, sse_true);
+      ASSERT(dl_dir);
+    }
+  }
+
+  /* Create a download dir if any. */
+  if (SseUtilFile_IsDirectory(dl_dir)) {
     err = moat_value_get_string(dl_dir, &str, &len);
     if (err == SSE_E_OK) {
-      if (SseUtilFile_IsDirectory(dl_dir)) {
+      path = sse_string_new_with_length(str, len);
+      ASSERT(path);
+    } else {
+      LOG_ERROR("moat_value_get_string() has been failed with [%s].", sse_get_error_string(err));
+      path = sse_string_new("/tmp");
+      ASSERT(path);
+    }
+  } else {
+    err = SseUtilFile_MakeDirectory(dl_dir);
+    if (err == SSE_E_OK) {
+      err = moat_value_get_string(dl_dir, &str, &len);
+      if (err == SSE_E_OK) {
         path = sse_string_new_with_length(str, len);
         ASSERT(path);
       } else {
-        LOG_WARN("Does not able to access to the download directory, so use /tmp.");
+        LOG_ERROR("moat_value_get_string() has been failed with [%s].", sse_get_error_string(err));
         path = sse_string_new("/tmp");
-        ASSERT(path);      
+        ASSERT(path);
       }
     } else {
-      LOG_WARN("moat_value_get_string() has been failed with [%s], so use /tmp", sse_get_error_string(err));
+      LOG_ERROR("SseUtilFile_MakeDirectory() has been failed with [%s].", sse_get_error_string(err));
       path = sse_string_new("/tmp");
       ASSERT(path);
     }
@@ -269,11 +286,13 @@ TFILEDownloader_DoDownload(TFILEDownloader *self)
     goto error_exit;
   }
 
+  moat_value_free(dl_dir);
   moat_value_free(basename);
   sse_string_free(path, sse_true);
   return;
 
  error_exit:
+  if (dl_dir)   moat_value_free(dl_dir);
   if (basename) moat_value_free(basename);
   if (path)     sse_string_free(path, sse_true);
 }
